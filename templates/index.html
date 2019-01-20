@@ -1,0 +1,55 @@
+<html>
+<title>Simple Tweet Classifier</title>
+<h1 style="text-align: center;">Tweet Classifier</h1>
+<form method="post" style="text-align: center;" class="keyword-form" id="form">
+    {{ form.keyword(placeholder="Enter Tweet Keyword", description="test") }}
+    <br/>
+    <br/>
+    {{ form.submit }}
+</form>
+<h2 style="text-align: center;">Stream</h2>
+<div class="container" style="width: 80%; height: 60%; overflow-y: auto; text-align: center; margin: 0 auto;">
+    <ul id ="stream-list" style="text-align: center;">
+
+    </ul>
+
+</div>
+
+
+
+
+
+</html>
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script>
+    $(document).on('submit', '.keyword-form', function(event) {
+        event.preventDefault();
+        var keyword = $(this).serializeArray()[0];
+        sendKeyword(keyword);
+        document.getElementById('form').reset();
+        $(document.getElementById('stream-list')).empty();
+
+    });
+
+    function sendKeyword(keyword){
+        $.ajax({
+            url: "{{ url_for }}",
+            type: "POST",
+            data: {'keyword': keyword},
+
+            success: function(data){
+                var list = document.getElementById('stream-list');
+                console.log(data);
+                var tweets = data[0];
+                var pos = data[1];
+                var neg = data[2];
+                for(var i = 0; i < tweets.length; i++){
+                    $(list).prepend('<li style="list-style-type: none;">' + tweets[i] + '<br/>' + '<strong>' + "pos: " + '</strong>' +  pos[i] + '<br/>' + '<strong>' + " neg: " + '</strong>' + neg[i] + '</li>' + '<br/>');
+                }
+            }
+
+        })
+    };
+
+</script>
