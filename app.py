@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, url_for, jsonify
 from forms import KeywordForm
+from collections import Counter
 import jinja2
 import os
 import classifier_app
 from make_classifier import prepare_data
 import pickle
+import re
 
 app = Flask(__name__)
 app.config.update(dict(
@@ -20,29 +22,56 @@ f = open('my_classifier.pickle', 'rb')
 classifier = pickle.load(f)
 f.close()
 
+
 @app.route('/', methods=['GET', 'POST'])
 def home_view():
     template = jinja_env.get_template('index.html')
     form = KeywordForm()
     tweets = []
+    # on ajax request, grab stream and analyze, pass back JSON to js
     if request.method == 'POST':
-        print('ajax received')
+        print('ajax request received')
         keyword = request.form["keyword[value]"]
         tweets = classifier_app.fetch_tweets(keyword, tweets)
         pos = []
         neg = []
+        overall = []
         for tweet in tweets:
-            prob_dict = classifier.prob_classify(prepare_data(tweet.split()))
+            tweet = clean_tweet(tweet)
+            tweet = list(filter(lambda x:x[0]!='@', tweet.split()))
+            prob_dict = classifier.prob_classify(prepare_data(tweet))
             counter = 0;
+            sum = 0;
             for sample in prob_dict.samples():
                 if counter == 0:
+                    sum = prob_dict.prob(sample)
                     pos.append(prob_dict.prob(sample))
                     counter += 1
                 else:
+                    sum -= prob_dict.prob(sample)
                     neg.append(prob_dict.prob(sample))
+            if sum >= 0.5:
+                overall.append('positive')
+            elif sum <= -0.5:
+                overall.append('negative')
+            else:
+                overall.append('neutral')
+
+        count = Counter(overall)
+        sum = len(overall)
+        if sum == 0:
+            return jsonify()
+        else:
+            neu_pct = count['neutral']/sum*100
+            pos_pct = count['positive']/sum*100
+            neg_pct = count['negative']/sum*100
+
+            return jsonify(tweets, pos, neg, overall, neu_pct, pos_pct, neg_pct)
+
+    return render_template(template, form=form, url_for_home=url_for('home_view'), url_for_style=url_for('static',filename='styles/main.css'))
 
 
-
-        return jsonify(tweets, pos, neg)
-
-    return render_template(template, form=form, url_for=url_for('home_view'))
+# cleans tweet, removes invalids
+def clean_tweet(tweet):
+    tweet = tweet.replace('rt', '')
+    return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())

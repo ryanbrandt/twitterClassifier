@@ -1,26 +1,37 @@
 <html>
+<head>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for_style }}">
+</head>
 <title>Simple Tweet Classifier</title>
 <h1 style="text-align: center;">Tweet Classifier</h1>
+<div class="container" style="width: 20%; text-align: center; margin: 0 auto;">
+    <p style="text-align: center; font-size: 14;"> This is a general tweet classifier. Enter a keyword, hit submit, and we will fetch a stream
+        of related tweets and run a sentiment analysis on the tweets for positivity/negativity.
+    </p>
+</div>
+<br/>
 <form method="post" style="text-align: center;" class="keyword-form" id="form">
     {{ form.keyword(placeholder="Enter Tweet Keyword", description="test") }}
     <br/>
     <br/>
     {{ form.submit }}
 </form>
-<h2 style="text-align: center;">Stream</h2>
-<div class="container" style="width: 80%; height: 60%; overflow-y: auto; text-align: center; margin: 0 auto;">
+<h2 style="text-align: center;" id="stream-header"></h2>
+<br/>
+<div class="container" style="max-width: 80%; max-height: 60%; overflow-y: auto; text-align: center; margin: 0 auto; display: flex; flex-direction: column;">
     <ul id ="stream-list" style="text-align: center;">
 
     </ul>
 
 </div>
-
-
-
-
-
+<div class="loader" id="loader" style="margin: 0 auto;"></div>
+<div id="load-text" style="margin: 0 auto; margin: 0 auto; text-align: center;"></div>
+<br/>
+<br/>
+<div id="chartContainer" style="height: 60%; width: 80%; margin: 0 auto;">
+</div>
 </html>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.js"></script>
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script>
     $(document).on('submit', '.keyword-form', function(event) {
@@ -29,26 +40,68 @@
         sendKeyword(keyword);
         document.getElementById('form').reset();
         $(document.getElementById('stream-list')).empty();
+        document.getElementById('chartContainer').innerHTML = "";
+        document.getElementById('stream-header').innerHTML = "";
+        // push loader into DOM
+        var loader = document.getElementById('loader');
+        loader.style.display = "block";
+        loader.style.border = "16px solid #f3f3f3";
+        loader.style.borderTop = "16px solid #3498db";
+        loader.style.borderRadius = "50%";
+        loader.style.width = "120px";
+        loader.style.height ="120px";
+        loader.style.animation = "spin 2s linear infinite";
+        document.getElementById('load-text').innerHTML = '<p style="font-style: italic;">' + "Fetching tweets..." + '</p>';
 
     });
 
     function sendKeyword(keyword){
         $.ajax({
-            url: "{{ url_for }}",
+            url: "{{ url_for_home }}",
             type: "POST",
             data: {'keyword': keyword},
 
+            // clear loader, push tweets and chart into DOM
             success: function(data){
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('load-text').innerHTML = "";
+                document.getElementById('stream-header').innerHTML = 'Stream';
                 var list = document.getElementById('stream-list');
-                console.log(data);
-                var tweets = data[0];
-                var pos = data[1];
-                var neg = data[2];
-                for(var i = 0; i < tweets.length; i++){
-                    $(list).prepend('<li style="list-style-type: none;">' + tweets[i] + '<br/>' + '<strong>' + "pos: " + '</strong>' +  pos[i] + '<br/>' + '<strong>' + " neg: " + '</strong>' + neg[i] + '</li>' + '<br/>');
+                if(typeof data[0] == 'undefined'){
+                    $(list).prepend('<p style="font-style: italic;">' + "Hmmm... couldn't find any tweets for that keyword, try another?" + '</p>');
+
+                } else {
+
+                    var tweets = data[0];
+                    var pos = data[1];
+                    var neg = data[2];
+                    var overall = data[3];
+                    var neuPct = data[4];
+                    var posPct = data[5];
+                    var negPct = data[6];
+                    for(var i = 0; i < tweets.length; i++){
+                        $(list).prepend('<li style="list-style-type: none;">' + tweets[i] + '<br/>' + '<strong>' + "positive: " + '</strong>' +  pos[i] + '<br/>' + '<strong>' + " negitive: " + '</strong>' + neg[i] + '<br/>' + '<strong>' + "overall: " + '</strong>' + overall[i] + '</li>' + '<br/>');
+                    }
+                    var chart = new CanvasJS.Chart("chartContainer", {
+                        animationEnabled: true,
+                        title: {
+                            text: "Overall Sentiment"
+                        },
+                        data: [{
+                            type: "pie",
+                            startAngle: 240,
+                            yValueFormatString: "##0.00\"%\"",
+                            indexLabel: "{label} {y}",
+                            dataPoints: [
+                                {y: neuPct, label: "Neutral"},
+                                {y: posPct, label: "Positive"},
+                                {y: negPct, label: "Negative"}
+                            ]
+                        }]
+                    });
+                    chart.render();
                 }
             }
-
         })
     };
 

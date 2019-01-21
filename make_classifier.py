@@ -3,8 +3,10 @@ import pickle
 from nltk import download
 from nltk import NaiveBayesClassifier
 from nltk.corpus import stopwords
-from nltk.corpus import movie_reviews as mr, twitter_samples as ts
-import ctypes
+from nltk.corpus import twitter_samples as ts
+import csv
+
+''' Make Classifier; Using Kaggle & NLTK Corpus Data '''
 
 # for ssl certificate with nltk downloader
 try:
@@ -14,13 +16,10 @@ except AttributeError:
 else:
     ssl._create_default_https_context = _create_unverified_https_context
 
-# download() here, get stopwords, movie_reviews and twitter_samples
+# download() here, get stopwords and twitter_samples
 
 # stopwords corpus is lacking! add some punctuation it misses
 noise = stopwords.words('english')
-missing_noise = ['.', ',', ';', ')', '(', '[', ']', ':', '?', '!', '@', 'b']
-for word in missing_noise:
-    noise.append(word)
 
 
 # remove noise, format appropriately as features for classifier
@@ -31,28 +30,47 @@ def prepare_data(words):
     return word_dict
 
 
-# get negative sentiment data
-neg_revs = []
-for fileid in mr.fileids('neg'):
-    words = mr.words(fileid)
-    neg_revs.append((prepare_data(words), "negative"))
+neg_dat = []
+pos_dat = []
+# general tweet dataset
+with open('training.csv', encoding="latin") as f:
+    reader = csv.reader(f)
+    for row in reader:
+        if row[0] == 0:
+            neg_dat.append((prepare_data(row[5].split()), "negative"))
+        elif row[0] == 4:
+            pos_dat.append((prepare_data(row[5].split()), "positive"))
 
+# GOP debate tweet dataset
+with open('sentiment.csv', encoding="latin") as g:
+    reader = csv.reader(g)
+    for row in reader:
+        if row[5] == 'Negative' and float(row[6]) > 0.5:
+            neg_dat.append((prepare_data(row[15].split()), "negative"))
+        elif row[5] == 'Positive' and float(row[6]) > 0.5:
+            pos_dat.append((prepare_data(row[15].split()), "positive"))
+
+# airline tweets dataset
+with open('Tweets.csv', encoding="latin") as h:
+    reader = csv.reader(h)
+    for row in reader:
+        if row[2] == 'negative' and float(row[3]) > 0.5:
+            neg_dat.append((prepare_data(row[10].split()), "negative"))
+        elif row[2] == 'positive' and float(row[3] > 0.5):
+            pos_dat.append((prepare_data(row[10].split()), "positive"))
+
+# get more training data from nltk corpus set
 for sent in ts.strings('negative_tweets.json'):
     sent = sent.split()
-    neg_revs.append((prepare_data(sent), "negative"))
+    neg_dat.append((prepare_data(sent), "negative"))
 
-# get positive sentiment data
-pos_revs = []
-for fileid in mr.fileids('pos'):
-    words = mr.words(fileid)
-    pos_revs.append((prepare_data(words), "positive"))
 
 for sent in ts.strings('positive_tweets.json'):
     sent = sent.split()
-    pos_revs.append((prepare_data(sent), "positive"))
+    pos_dat.append((prepare_data(sent), "positive"))
 
 # training set
-train_set = pos_revs + neg_revs
+train_set = pos_dat + neg_dat
 # make classifier
 classifier = NaiveBayesClassifier.train(train_set)
 
