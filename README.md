@@ -15,4 +15,5 @@ The Users are then returned the actual stream tweets with the results of each tw
 5) Sentiment data from Kaggle and the NLTK Corpora Library!
 
 I have a mini-deployment live at http://ryanbrandt.pythonanywhere.com/
+
 Unfortunately, python anywhere could'nt suppport the size of my model, so this is a reduced version which may not be as accurate--I intend to deploy the full version in the near future with some updates
