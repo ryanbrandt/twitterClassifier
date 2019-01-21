@@ -16,4 +16,4 @@ The Users are then returned the actual stream tweets with the results of each tw
 
 I have a mini-deployment live at http://ryanbrandt.pythonanywhere.com/
 
-Unfortunately, PythonAnywhere couldn't suppport the size of my model, so this is a reduced version which may not be as accurate--I intend to deploy the full version in the near future with some updates
+Unfortunately, PythonAnywhere couldn't suppport the size of my model, so this is a reduced version is not as accurate--I intend to deploy the full version in the near future with some updates
