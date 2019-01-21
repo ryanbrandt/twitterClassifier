@@ -12,3 +12,4 @@ The Users are then returned the actual stream tweets with the results of each tw
 2) Pickle
 3) Flask
 4) JQuery & AJAX
+5) Sentiment data from Kaggle and the NLTK Corpora Library!
