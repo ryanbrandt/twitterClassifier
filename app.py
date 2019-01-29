@@ -8,8 +8,8 @@ from make_classifier import prepare_data
 import pickle
 import re
 
-app = Flask(__name__)
-app.config.update(dict(
+application = Flask(__name__)
+application.config.update(dict(
     SECRET_KEY="powerful secretkey",
     WTF_CSRF_SECRET_KEY="a csrf secret key"
 ))
@@ -23,7 +23,7 @@ classifier = pickle.load(f)
 f.close()
 
 
-@app.route('/', methods=['GET', 'POST'])
+@application.route('/', methods=['GET', 'POST'])
 def home_view():
     template = jinja_env.get_template('index.html')
     form = KeywordForm()
@@ -75,3 +75,7 @@ def home_view():
 def clean_tweet(tweet):
     tweet = tweet.replace('rt', '')
     return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
+
+
+if __name__=="__main__":
+    application.run(host='0.0.0.0')
