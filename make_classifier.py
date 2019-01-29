@@ -43,7 +43,7 @@ with open('training.csv', encoding="latin") as f:
             pos_dat.append((prepare_data(row[5].split()), "positive"))
 
 # GOP debate tweet dataset
-with open('sentiment.csv', encoding="latin") as g:
+with open('Sentiment.csv', encoding="latin") as g:
     reader = csv.reader(g)
     for row in reader:
         if row[5] == 'Negative' and float(row[6]) > 0.5:
