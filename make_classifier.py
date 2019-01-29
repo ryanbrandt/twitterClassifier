@@ -32,7 +32,7 @@ def prepare_data(words):
 
 neg_dat = []
 pos_dat = []
-'''
+
 # general tweet dataset
 with open('training.csv', encoding="latin") as f:
     reader = csv.reader(f)
@@ -59,7 +59,7 @@ with open('Tweets.csv', encoding="latin") as h:
             neg_dat.append((prepare_data(row[10].split()), "negative"))
         elif row[2] == 'positive' and float(row[3] > 0.5):
             pos_dat.append((prepare_data(row[10].split()), "positive"))
-'''
+
 # get more training data from nltk corpus set
 for sent in ts.strings('negative_tweets.json'):
     sent = sent.split()
