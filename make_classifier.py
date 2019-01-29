@@ -52,6 +52,7 @@ with open('Sentiment.csv', encoding="latin") as g:
             elif row[5] == 'Positive' and float(row[6]) > 0.5:
                 pos_dat.append((prepare_data(row[15].split()), "positive"))
         except IndexError:
+            print('err Sentimenet')
             pass
 
 # airline tweets dataset
@@ -64,6 +65,7 @@ with open('Tweets.csv', encoding="latin") as h:
             elif row[2] == 'positive' and float(row[3] > 0.5):
                 pos_dat.append((prepare_data(row[10].split()), "positive"))
         except IndexError:
+            print('err Tweets')
             pass
 
 # get more training data from nltk corpus set
