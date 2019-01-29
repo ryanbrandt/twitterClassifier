@@ -51,7 +51,7 @@ def fetch_tweets(keyword, tweets):
     auth = tweepy.OAuthHandler('SnsHkP192Jac6s8Da2AEBZabs' , '3zWgrqbYBPjbo0Fethe7PnhItLwFJDlTt9ia40Wac0jhCJiasW')
     auth.set_access_token('4910145663-br9JBO0fGQdiSYKXYx2lWWCfAbTCYpHVI50oKBW', 'LAiMxilFzO1mwgCvuvFrDakzSM3rojkLvJqqexbR6Yi08')
     api = tweepy.API(auth)
-    stream = Stream(auth, listener=Listener(time_limit=2, tweets=tweets))
+    stream = Stream(auth, listener=Listener(time_limit=15, tweets=tweets))
     stream.filter(track=[keyword])
     # tweepy fails sometimes, get rid of Nones
     tweets = list(filter(lambda x: x is not None, tweets))
