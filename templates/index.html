@@ -30,6 +30,9 @@
 <br/>
 <div id="chartContainer" style="height: 60%; width: 80%; margin: 0 auto;">
 </div>
+<div style="text-align: center;">
+<footer><small>&copy; Ryan Brandt 2019 </small></footer>
+</div>
 </html>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.js"></script>
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
@@ -51,7 +54,7 @@
         loader.style.width = "120px";
         loader.style.height ="120px";
         loader.style.animation = "spin 2s linear infinite";
-        document.getElementById('load-text').innerHTML = '<p style="font-style: italic;">' + "Fetching tweets..." + '</p>';
+        document.getElementById('load-text').innerHTML = '<p style="font-style: italic;">' + "Fetching tweets... (This will take about 15-seconds)" + '</p>';
 
     });
 
