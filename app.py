@@ -68,7 +68,7 @@ def home_view():
 
             return jsonify(tweets, pos, neg, overall, neu_pct, pos_pct, neg_pct)
 
-    return render_template(template, form=form, url_for_home=url_for('home_view'), url_for_style=url_for('static',filename='styles/main.css'))
+    return render_template(template, form=form, url_for_home=url_for('home_view'), url_for_js=url_for('static', filename='js/main.js'), url_for_style=url_for('static', filename='styles/main.css'))
 
 
 # cleans tweet, removes invalids
